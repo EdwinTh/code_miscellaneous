@@ -7,8 +7,8 @@ import datetime
 '''
 This script will extract the exif data from all .jpg files in a folder
 and rename all the .jpg files to its datetime. It takes one parameter:
-the timedifference that should be applied in case the pictures are taken 
-is different timezone.
+the time difference that should be applied in case the pictures are taken 
+in a different timezone.
 '''
 
 # unpacking the variable
