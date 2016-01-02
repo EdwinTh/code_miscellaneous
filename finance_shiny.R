@@ -5,52 +5,97 @@ library(shinydashboard)
 library(magrittr)
 library(data.table)
 
-ui <- fluidPage(
+ui <- dashboardPage(
+  
+  dashboardHeader(
+    title = 'Finance Planner'
+  ),
+  
+  dashboardSidebar(disable = TRUE),
+  
+  dashboardBody(
   tabsetPanel(
     
     tabPanel("Financial Overview",
+             
+             h3('Overview of all Income'),
              ggvisOutput('income'),
+             
+             h3("Overview of all Expenditure"),
              ggvisOutput('expenditure'),
+             
+             h3("Net Results"),
              ggvisOutput('net_month'),
+             
+             h3("Savings Increase or Decrease"),
              ggvisOutput('savings')
              ),
     
+    
+    # Place widgets next to each other: SO 20637248
+    
     tabPanel("Data",
              
-             textInput("data_source",
-                       label = h3("Data Source")),
+             h3("Data Source"),
              
-             actionButton("load",   
-                          "Load data from file"),
+             div(style="display:inline-block", 
+                 textInput("data_source",
+                           NULL,
+                           width = '500px')
+                 ),
              
-             textInput("data_save",
-                       label = h3("Data Destination")),
+             div(style="display:inline-block", 
+                 actionButton("load", 
+                             "Load data from file",
+                             width = '150')),
              
-             actionButton("save",
-                          "Save data to file"),
+             h3("Data Destination"),
+             
+             div(style="display:inline-block", 
+                 textInput("data_save", 
+                           NULL,
+                           width = '500px')),
+             
+             div(style="display:inline-block", 
+                 actionButton("save", 
+                             "Save data to file",
+                             width = '150')),
+             
+             h3("Enter New Data"),
              
              selectInput("month_entry",
                          "Months",
                          choices  = month.name,
-                         multiple = TRUE),
+                         multiple = TRUE,
+                         width = '700'),
              
-             numericInput('amount_entry', 
+             div(style="display:inline-block", 
+                 numericInput('amount_entry', 
                           'Amount',
-                          value = 0),
+                          value = 0,
+                          width = '350')),
              
-             textInput("type_entry",
-                       "Type"),
+             div(style="display:inline-block",
+                 selectInput("in_out_entry",
+                             "In or Out",
+                             choices  = c("in", 'out'),
+                             width = '350')),
              
-             selectInput("in_out_entry",
-                         "In or Out",
-                         choices  = c("in", 'out')
-                         ),
+             div(style="display:inline-block", 
+                 textInput("type_entry",
+                           "Type",
+                           width = '550')),
              
-             actionButton("add",
-                          "Add to dataset"),
+             div(style="display:inline-block", 
+                 actionButton("add",
+                              "Add to dataset",
+                              width = '150')),
+             
+             h3('Current Data'),
              
              dataTableOutput('finance_data')
              )
+  )
   )
 )
 
@@ -92,7 +137,8 @@ server <- function(input, output){
       values$finance_data <- read.table(
         input$data_source,
         header           = TRUE,
-        stringsAsFactors = FALSE
+        stringsAsFactors = FALSE,
+        sep              = ';'
       )  %>% mutate(month = factor(month, levels = month.name))
     }
   })
@@ -104,7 +150,8 @@ server <- function(input, output){
       write.table(values$finance_data,
                   input$data_save,
                   row.names = FALSE,
-                  quote     = FALSE
+                  quote     = FALSE,
+                  sep       = ';'
       )
     }
   })
