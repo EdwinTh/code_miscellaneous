@@ -1,23 +1,25 @@
 library(ggplot2)
 library(dplyr)
 library(data.table)
+library(magrittr)
 
 # helper function that checks for the next tile to be sampled if there
 # are any colors that should be excluded because the max adjacent was
 # reached either vertically or horizontally
 check_colors <- function(cur_width,
-                         cur_height){
-  if(cur_height > max_adjacent){
+                         cur_height,
+                         m_a){
+  if(cur_height > m_a){
     colors_height <-
-      plot_data[Height %in% (cur_height-(max_adjacent)):(cur_height-1) &
+      plot_data[Height %in% (cur_height-(m_a)):(cur_height-1) &
                   Width == cur_width, color] %>% unique
   } else {
     colors_height <- NULL
   }
 
-  if(cur_width > max_adjacent){
+  if(cur_width > m_a){
     colors_width <-
-      plot_data[Width %in% (cur_width-(max_adjacent)):(cur_width-1) &
+      plot_data[Width %in% (cur_width-(m_a)):(cur_width-1) &
                   Height == cur_height, color] %>% unique
   } else {
     colors_width <- NULL
@@ -77,7 +79,7 @@ tiles_pattern <- function(
 
   for(i in 1:(nr_width)){
     for(j in 1:nr_height){
-      exclude_iter     <- check_colors(i, j)
+      exclude_iter     <- check_colors(i, j, max_adjacent)
       color_iter       <- sample_color(exclude_iter, colors_to_sample)
       plot_data[Height == j & Width == i, color := color_iter$color]
       colors_to_sample <- color_iter$cts
@@ -111,4 +113,4 @@ tiles_pattern <- function(
     coord_fixed()
 }
 
-
+tiles_pattern(max_adjacent = 10)
